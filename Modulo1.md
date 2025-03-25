@@ -39,7 +39,7 @@ fonteContribuintes = Dados.tributos.v2.contribuintes;
 p_tipoPessoa = parametros.tipoPessoa.selecionado.valor
 
 # Inicializa uma lista vazia para armazenar os registros antes de inseri-los na fonte
-dadosContribuintes = []
+linha = []
 
 # Define um critério de busca para filtrar os contribuintes pelo tipo de pessoa
 filtroContribuintes = "tipoPessoa = '${p_tipoPessoa}'"
