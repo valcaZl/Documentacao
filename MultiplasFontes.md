@@ -16,7 +16,9 @@ O campo em comum entre essas fontes é **`idImovel`**. No caso da fonte `imoveis
 esquema = [
   id: Esquema.numero,
   nome: Esquema.caracter,
-  codigo: Esquema.caracter
+  codigo: Esquema.caracter,
+  tipoConstrucao: Esquema.caracter,
+  testeFELIPE: Esquema.caracter
 ]
 
 p_situacao = parametros.situacao?.selecionado?.valor  // Parâmetro opcional, pode não estar presente
