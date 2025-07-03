@@ -8,16 +8,16 @@ Este documento descreve o funcionamento detalhado do script responsável pela co
 
 | Fonte                                          | Finalidade                       |
 | ---------------------------------------------- | -------------------------------- |
-| Dados.tributos.v2.horariosFuncionamento.dias | Horários por dia da semana       |
-| Dados.tributos.v2.economicos                 | Dados do econômico               |
-| Dados.tributos.v2.alvara                     | Dados do alvará                  |
-| Dados.tributos.v2.economico.atividades       | Lista de atividades do econômico |
+| `Dados.tributos.v2.horariosFuncionamento.dias` | Horários por dia da semana       |
+| `Dados.tributos.v2.economicos`                 | Dados do econômico               |
+| `Dados.tributos.v2.alvara`                     | Dados do alvará                  |
+| `Dados.tributos.v2.economico.atividades`       | Lista de atividades do econômico |
 
 ---
 
 ## 📋 Esquema da Fonte
 
-groovy
+```groovy
 esquema = [
   hrFuncionamento: Esquema.caracter,
   hrFuncionamentoSabado: Esquema.caracter,
@@ -32,12 +32,15 @@ esquema = [
   ]))
   // ... outros campos omitidos
 ]
+```
 
 ---
 
 ## 🌐 Função de Formatação de Horários
 
-groovy
+Função que trata a remoção de segundos desnecessários e monta os horários com ou sem intervalo intrajornada:
+
+```groovy
 def formatarHorasComIntervalo = { entrada, saida, intrajornadaEntrada, intrajornadaSaida ->
   def formatarHora = { hora ->
     if (hora == null) return null;
@@ -56,6 +59,7 @@ def formatarHorasComIntervalo = { entrada, saida, intrajornadaEntrada, intrajorn
     "${ent} às ${sai}" :
     "${ent} às ${intraSai} - ${intraEnt} às ${sai}";
 }
+```
 
 ---
 
@@ -63,19 +67,20 @@ def formatarHorasComIntervalo = { entrada, saida, intrajornadaEntrada, intrajorn
 
 O script agrupa os registros em um mapa para facilitar o acesso por dia:
 
-groovy
+```groovy
 def horariosPorDia = [:]
 todosHorariosDoComercio.each { item ->
   horariosPorDia[item.dia?.valor] = item
 }
+```
 
 ---
 
 ## 📅 Segunda a Sexta-feira
 
-Verifica se os horários dos dias úteis são iguais:
+Verifica se os horários dos dias úteis são iguais e define o comportamento:
 
-groovy
+```groovy
 def dias = ["SEGUNDA", "TERCA", "QUARTA", "QUINTA", "SEXTA"]
 def comum = null
 
@@ -86,28 +91,30 @@ dias.each { dia ->
     comum = (comum == null) ? f : (comum == f ? comum : "Variado")
   }
 }
+```
 
-Resultado final:
+### Resultado final
 
-Se comuns: Segunda à Sexta-feira: 08:00 às 12:00 - 13:30 às 18:00
-Se variados: Segunda à Sexta-feira: Horário Variado (verificar)
+* Se comuns: `Segunda à Sexta-feira: 08:00 às 12:00 - 13:30 às 18:00`
+* Se variados: `Segunda à Sexta-feira: Horário Variado (verificar)`
 
 ---
 
 ## 🔻 Sábado e Domingo
 
-groovy
+```groovy
 def sabado = horariosPorDia["SABADO"]
 def domingo = horariosPorDia["DOMINGO"]
 
 def hrFuncionamentoSabado = sabado ? "Sábado: ${formatarHorasComIntervalo(...)}" : "Fechado"
 def hrFuncionamentoDomingo = domingo ? "Domingo: ${formatarHorasComIntervalo(...)}" : "Fechado"
+```
 
 ---
 
 ## 🔄 Linha final do alvará
 
-groovy
+```groovy
 linha = [
   hrFuncionamento: dadosEconomicos.horarioFuncionamento?.descricao ?: "Horário não Cadastrado!",
   hrFuncionamentoSabado: hrFuncionamentoSabado,
@@ -118,22 +125,25 @@ linha = [
   horaIntrajornadaSaida: horaIntrajornadaSaidaPrincipal,
   // demais campos...
 ]
+```
 
 ---
 
 ## ✅ Vantagens
 
-✅ Formatação clara e flexível dos horários
-✅ Considera intrajornada
-✅ Detecta variações por dia
-✅ Adapta-se à ausência de dias cadastrados
+* ✅ Formatação clara e flexível dos horários
+* ✅ Considera intrajornada
+* ✅ Detecta variações por dia
+* ✅ Adapta-se à ausência de dias cadastrados
 
 ---
 
 ## 🚀 Sugestões Futuras
 
-Incluir feriados ou exceções pontuais
-Exportação dos horários em tabela por dia
-Permitir múltiplos turnos no mesmo dia
+* Incluir feriados ou exceções pontuais
+* Exportação dos horários em tabela por dia
+* Permitir múltiplos turnos no mesmo dia
 
 ---
+
+> ✊ Documentação inspirada no estilo `valcaZl/Documentacao` ✔️
