@@ -15,7 +15,7 @@ def validEncoding (archive) {
       if (validArchive.contemProximaLinha()) return validArchive
     } catch(ignore) {}
   }
-
+  
   message = "O encoding do arquivo solicitado não é suportado pelo script para a importação."
   Notificacao.nova(message).para(usuario.id).enviar()
   suspender message
@@ -29,11 +29,11 @@ def String formatValor(BigDecimal valorInicial) {
   def parteDecimal = partes[1]
   def parteInteiraInvertida = parteInteira.reverse()
   def parteInteiraComPontos = parteInteiraInvertida.replaceAll(/(\d{3})/, '$1.').reverse()
-
+  
   if (parteInteiraComPontos.startsWith('.')) {
     parteInteiraComPontos = parteInteiraComPontos.substring(1)
   }
-
+  
   def valorFormatado = "R\$${parteInteiraComPontos},${parteDecimal}"
   return valorFormatado
 }
@@ -48,26 +48,28 @@ csv =  validEncoding(parametros.arquivo.valor)
 while(csv.contemProximaLinha()) {
   linha = csv.lerLinha().split(";")
   inscricaoImobiliaria = linha[1]
-
+  
   if(inscricaoImobiliaria.toString() == ' Inscrição imobiliária'||inscricaoImobiliaria.toString() == 'Inscrição imobiliária '){
     continue   
   }
   imprimir "inscricaoImobiliaria: " + inscricaoImobiliaria
-
+  
   fonteImoveis = Dados.tributos.v2.imoveis;
   filtroImoveis = "inscricaoImobiliariaFormatada = '${inscricaoImobiliaria}' or inscricaoIncra = '${inscricaoImobiliaria}'"
   dadosImoveis = fonteImoveis.busca(criterio: filtroImoveis)
-
+  
   percorrer (dadosImoveis) { itemImoveis ->
     valorVenal = 0
-    fonteCamposAdicionais = Dados.tributos.v2.imovel.camposAdicionais;
-    filtroCamposAdicionais = "campoAdicional.titulo = 'VALOR VENAL DO IMÓVEL'"
-    dadosCamposAdicionais = fonteCamposAdicionais.busca(criterio: filtroCamposAdicionais,parametros:["idImovel":itemImoveis.id])
-
+    fonteCamposAdicionais = Dados.tributos.v2.imoveis.camposAdicionais;
+    
+    filtroCamposAdicionais = "idImovel = ${itemImoveis.id} and campoAdicional.titulo = 'VALOR VENAL DO IMÓVEL' and ano = 2024"
+    
+    dadosCamposAdicionais = fonteCamposAdicionais.busca(criterio: filtroCamposAdicionais,ordenacao: "ano desc")
+    
     percorrer (dadosCamposAdicionais) { itemCamposAdicionais ->
       valorVenal = itemCamposAdicionais.vlCampo
     }
-
+    
     imprimir itemImoveis
     linhadoArquivo = []
     linhadoArquivo.add('SALTINHO');
@@ -76,7 +78,7 @@ while(csv.contemProximaLinha()) {
     linhadoArquivo.add(itemImoveis.responsavel.nome);
     linhadoArquivo.add(formatValor(valorVenal));
     linhadoArquivo.add(itemImoveis.situacao.valor);
-
+    
     arquivo.escrever(linhadoArquivo.join(';'))
     arquivo.novaLinha()
   }
