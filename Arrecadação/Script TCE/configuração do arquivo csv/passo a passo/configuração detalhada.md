@@ -9,8 +9,8 @@ Este guia foi criado para ajudar usuários a configurarem o arquivo de com as in
 1. Abra o Excel, selecione a opção Arquivo >> Novo >> Planilha
 2. Caso já possua o arquivo do TCE, apenas abra o arquivo no editor de planilhas normalmente.
 
-📸 (Arrecadação\Script TCE\configuração do arquivo csv\imagens\Passo 1.png)
-📸 (Arrecadação\Script TCE\configuração do arquivo csv\imagens\Passo 2.png)
+📸 ![image alt](https://github.com/valcaZl/Documentacao/blob/5535835f608c1f46d0708cf73b291eba5b9a0840/Arrecada%C3%A7%C3%A3o/Script%20TCE/configura%C3%A7%C3%A3o%20do%20arquivo%20csv/imagens/Passo%201.png)
+📸 ![image alt](https://github.com/valcaZl/Documentacao/blob/5535835f608c1f46d0708cf73b291eba5b9a0840/Arrecada%C3%A7%C3%A3o/Script%20TCE/configura%C3%A7%C3%A3o%20do%20arquivo%20csv/imagens/Passo%202.png)
 
 ---
 
@@ -18,7 +18,7 @@ Este guia foi criado para ajudar usuários a configurarem o arquivo de com as in
 
 1. Selecione a opção "Salvar Como"
 
-📸 ![Importar UTF-8](imagens-excel/importar_utf8.png)
+📸 ![image alt](https://github.com/valcaZl/Documentacao/blob/5535835f608c1f46d0708cf73b291eba5b9a0840/Arrecada%C3%A7%C3%A3o/Script%20TCE/configura%C3%A7%C3%A3o%20do%20arquivo%20csv/imagens/Passo%203.png)
 
 ---
 
@@ -26,7 +26,7 @@ Este guia foi criado para ajudar usuários a configurarem o arquivo de com as in
 
 1. Selecione a opção de "Texto CSV"
 
-📸 ![Salvar como CSV UTF-8](imagens-excel/salvar_como_utf8.png)
+📸 ![image alt](https://github.com/valcaZl/Documentacao/blob/5535835f608c1f46d0708cf73b291eba5b9a0840/Arrecada%C3%A7%C3%A3o/Script%20TCE/configura%C3%A7%C3%A3o%20do%20arquivo%20csv/imagens/Passo%204.png)
 
 ---
 
@@ -36,14 +36,14 @@ Este guia foi criado para ajudar usuários a configurarem o arquivo de com as in
 2. Ao aparecer o quadro de opções de campo, retire o caracter de aspas do campo delimitador do texto,
 deixando-o em branco.
 
-📸 ![Salvar como CSV UTF-8](imagens-excel/salvar_como_utf8.png)
-📸 ![Salvar como CSV UTF-8](imagens-excel/salvar_como_utf8.png)
+📸 ![image alt](https://github.com/valcaZl/Documentacao/blob/5535835f608c1f46d0708cf73b291eba5b9a0840/Arrecada%C3%A7%C3%A3o/Script%20TCE/configura%C3%A7%C3%A3o%20do%20arquivo%20csv/imagens/Passo%205.png)
+📸 ![image alt](https://github.com/valcaZl/Documentacao/blob/5535835f608c1f46d0708cf73b291eba5b9a0840/Arrecada%C3%A7%C3%A3o/Script%20TCE/configura%C3%A7%C3%A3o%20do%20arquivo%20csv/imagens/Passo%206.png)
 
 ---
 
 ## ✅ Resultado Esperado
 
 Seguindo o passo a passo, o resultado final esperado é:
-![Salvar como CSV UTF-8](imagens-excel/salvar_como_utf8.png)
+![image alt](https://github.com/valcaZl/Documentacao/blob/5535835f608c1f46d0708cf73b291eba5b9a0840/Arrecada%C3%A7%C3%A3o/Script%20TCE/configura%C3%A7%C3%A3o%20do%20arquivo%20csv/imagens/Resultado.png)
 
 ---
