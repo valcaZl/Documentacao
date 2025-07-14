@@ -52,32 +52,44 @@ while(csv.contemProximaLinha()) {
   if(inscricaoImobiliaria.toString() == ' Inscrição imobiliária'||inscricaoImobiliaria.toString() == 'Inscrição imobiliária '){
     continue   
   }
-  imprimir "inscricaoImobiliaria: " + inscricaoImobiliaria
+  //imprimir "inscricaoImobiliaria: " + inscricaoImobiliaria
+  
+  inscricaoImobiliariaFormatada = inscricaoImobiliaria.replaceAll('"', '').trim()
+  
+  imprimir inscricaoImobiliariaFormatada
   
   fonteImoveis = Dados.tributos.v2.imoveis;
-  filtroImoveis = "inscricaoImobiliariaFormatada = '${inscricaoImobiliaria}' or inscricaoIncra = '${inscricaoImobiliaria}'"
+  filtroImoveis = "inscricaoImobiliariaFormatada = '${inscricaoImobiliaria}'"
   dadosImoveis = fonteImoveis.busca(criterio: filtroImoveis)
-  
   percorrer (dadosImoveis) { itemImoveis ->
     valorVenal = 0
+    tipoUtilização = ''
     fonteCamposAdicionais = Dados.tributos.v2.imoveis.camposAdicionais;
     
-    filtroCamposAdicionais = "idImovel = ${itemImoveis.id} and campoAdicional.titulo = 'VALOR VENAL DO IMÓVEL' and ano = 2024"
+    filtroCamposAdicionais = "idImovel = ${itemImoveis.id} and campoAdicional.titulo = 'Valor Venal do Imóvel' and ano = 2024"
     
     dadosCamposAdicionais = fonteCamposAdicionais.busca(criterio: filtroCamposAdicionais,ordenacao: "ano desc")
     
     percorrer (dadosCamposAdicionais) { itemCamposAdicionais ->
       valorVenal = itemCamposAdicionais.vlCampo
     }
+        
+    filtroCamposAdicionais2 = "idImovel = ${itemImoveis.id} and campoAdicional.titulo = 'Utilização do Imóvel'"
     
-    imprimir itemImoveis
+    dadosCamposAdicionais2 = Dados.tributos.v2.imoveis.camposAdicionais.busca(criterio: filtroCamposAdicionais2,ordenacao: "ano desc")
+    
+    percorrer (dadosCamposAdicionais2) { itemCamposAdicionais2 ->
+      tipoUtilização = itemCamposAdicionais2.opcoes
+    }
+    
+    //imprimir itemImoveis
     linhadoArquivo = []
-    linhadoArquivo.add('SALTINHO');
+    linhadoArquivo.add('NOME DA ENTIDADE');
     linhadoArquivo.add(itemImoveis.inscricaoImobiliariaFormatada);
     linhadoArquivo.add(itemImoveis.responsavel.cpfCnpj);
-    linhadoArquivo.add(itemImoveis.responsavel.nome);
+    linhadoArquivo.add(itemImoveis.responsavel.nome.toUpperCase());
     linhadoArquivo.add(formatValor(valorVenal));
-    linhadoArquivo.add(itemImoveis.situacao.valor);
+    linhadoArquivo.add(tipoUtilização);
     
     arquivo.escrever(linhadoArquivo.join(';'))
     arquivo.novaLinha()
