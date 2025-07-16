@@ -10,9 +10,9 @@ Os conteúdos estão organizados em subpastas temáticas. Abaixo você encontra 
 
 ### 📂 Pastas disponíveis até o momento:
 
-* [`Casos de uso`](./Casos%20de%20uso)
-* [`Script TCE`](./Script%20TCE)
-* [`Tutoriais Básicos`](./Tutoriais%20B%C3%A1sicos)
+* [`Casos de uso`](https://github.com/valcaZl/Documentacao/tree/main/Arrecada%C3%A7%C3%A3o/Casos%20de%20Uso)
+* [`Script TCE`](https://github.com/valcaZl/Documentacao/tree/main/Arrecada%C3%A7%C3%A3o/Script%20TCE)
+* [`Tutoriais Básicos`](https://github.com/valcaZl/Documentacao/tree/main/Arrecada%C3%A7%C3%A3o/Tutorias%20B%C3%A1sicos)
 
 ---
 
