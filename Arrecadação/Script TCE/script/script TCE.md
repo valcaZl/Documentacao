@@ -66,6 +66,7 @@ while(csv.contemProximaLinha()) {
     tipoUtilização = ''
     fonteCamposAdicionais = Dados.tributos.v2.imoveis.camposAdicionais;
     
+    //ALTERE O 'Valor Venal do Imóvel' PARA O NOME DO CAMPO ADICIONAL RESPECTIVO DA ENTIDADE
     filtroCamposAdicionais = "idImovel = ${itemImoveis.id} and campoAdicional.titulo = 'Valor Venal do Imóvel' and ano = 2024"
     
     dadosCamposAdicionais = fonteCamposAdicionais.busca(criterio: filtroCamposAdicionais,ordenacao: "ano desc")
@@ -73,7 +74,7 @@ while(csv.contemProximaLinha()) {
     percorrer (dadosCamposAdicionais) { itemCamposAdicionais ->
       valorVenal = itemCamposAdicionais.vlCampo
     }
-        
+    //ALTERE O 'Utilização do Imóvel' PARA O NOME DO CAMPO ADICIONAL RESPECTIVO DA ENTIDADE
     filtroCamposAdicionais2 = "idImovel = ${itemImoveis.id} and campoAdicional.titulo = 'Utilização do Imóvel'"
     
     dadosCamposAdicionais2 = Dados.tributos.v2.imoveis.camposAdicionais.busca(criterio: filtroCamposAdicionais2,ordenacao: "ano desc")
