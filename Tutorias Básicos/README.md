@@ -10,7 +10,7 @@ Os conteúdos estão organizados em subpastas temáticas. Abaixo você encontra 
 
 ### 📂 Pastas disponíveis até o momento:
 
-* [`Extensões`](https://github.com/valcaZl/Documentacao/tree/main/Arrecada%C3%A7%C3%A3o/Casos%20de%20Uso)
+* [`Extensões`](https://github.com/valcaZl/Documentacao/tree/main/Tutorias%20B%C3%A1sicos/Extens%C3%B5es)
 
 ---
 
