@@ -12,7 +12,6 @@ Os conteúdos estão organizados em subpastas temáticas. Abaixo você encontra 
 
 * [`Casos de uso`](https://github.com/valcaZl/Documentacao/tree/main/Arrecada%C3%A7%C3%A3o/Casos%20de%20Uso)
 * [`Script TCE`](https://github.com/valcaZl/Documentacao/tree/main/Arrecada%C3%A7%C3%A3o/Script%20TCE)
-* [`Tutoriais Básicos`](https://github.com/valcaZl/Documentacao/tree/main/Arrecada%C3%A7%C3%A3o/Tutorias%20B%C3%A1sicos)
 
 ---
 
@@ -27,7 +26,3 @@ Contém scripts com estrutura consolidada, pensados para serem reutilizados ou a
 Documenta o script utilizado para gerar planilhas com informações detalhadas sobre inscrições imobiliárias, conforme exigências do TCE.
 
 ---
-
-### 📘 Tutoriais Básicos
-
-Reúne conteúdos introdutórios considerados essenciais para quem está começando a trabalhar com o desenvolvimento de extensões.
