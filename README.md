@@ -1,9 +1,11 @@
 # Introdução
 
-Este documento tem como objetivo apresentar de forma clara e acessível os conceitos básicos do **BFC Script**, oferecendo uma base sólida para quem está iniciando no desenvolvimento de extensões.
+Este documento tem como objetivo **documentar e registrar conteúdos utilitários** desenvolvidos nas verticais de **Arrecadação**, **Pessoal** e **Contábil**.
 
-A proposta desta documentação é servir como um ponto de partida para iniciantes, abordando desde os fundamentos até exemplos práticos que demonstram maneiras eficientes de utilizar o script no dia a dia.
+O foco principal está na **criação de extensões**, abordando de forma clara e objetiva o desenvolvimento de **scripts e fontes dinâmicas**, com:
 
-Aqui, você encontrará explicações simples, exemplos comentados e boas práticas que podem facilitar o aprendizado e acelerar o processo de criação das suas primeiras extensões.
+- **Funcionalidades otimizadas**, que visam melhorar o desempenho e a eficiência das soluções;
+- **Soluções específicas para demandas "nichadas"**, que fogem dos casos de uso mais comuns e exigem abordagens customizadas;
+- **Funções para Fórmulas**, com foco em dinamizar a sua alteração.
 
-Nosso foco está em tornar o conteúdo didático, direto ao ponto e útil para quem deseja entender como o BFC Script funciona e como aplicá-lo de forma produtiva em seus projetos.
+A proposta desta documentação é servir como **base de consulta** tanto para profissionais que atuam nessas frentes quanto aqueles que gostariam de aprender e aprimorar-se, oferecendo exemplos práticos, explicações técnicas e boas práticas que facilitam tanto o aprendizado quanto a reutilização dos recursos aqui descritos.
