@@ -36,16 +36,16 @@ Os conteúdos estão organizados em subpastas temáticas, cada uma abordando um 
 
 ### **2. Contratos**
 
-Automação, exportação e manipulação de contratos e compras.
+Esta pasta contém scripts e documentações relacionadas à automação, exportação e manipulação de dados de contratos e compras. Ela é dividida em duas subpastas principais:
 
-*   **Compras**:
-    *   `Exclusão de Materiais.md`
-    *   `Exportação de Materiais.md`
-    *   `Verificar Históricos de Alterações.md`
-*   **Contratos**:
-    *   `Consulta com Maps - Fontes Diferentes CSV.md`
-    *   `Encerrar Contratos.md`
-    *   `Script conversão de contratos.md`
+*   **Compras** — Focada em operações relacionadas a materiais e compras:
+    *   `Exclusão de Materiais.md`: Documenta um script Groovy para exclusão em massa de materiais via API REST, lendo IDs de um arquivo CSV e realizando requisições DELETE.
+    *   `Exportação de Materiais.md`: Descreve um script Groovy que extrai, limpa e formata dados de materiais (ID, descrição, código) de uma fonte e os exporta para um arquivo CSV, com tratamento de caracteres especiais.
+    *   `Verificar Históricos de Alterações.md`: Detalha um script Groovy que busca informações de materiais por código e gera um log (`.txt`) com dados de criação e última alteração, útil para auditoria.
+*   **Contratos** — Contém scripts e documentações específicas para a gestão de contratos:
+    *   `Consulta com Maps - Fontes Diferentes CSV.md`: Documenta um script Groovy que coleta informações de materiais e suas especificações de diferentes fontes, estrutura-as em um objeto e as exporta para um arquivo CSV, incluindo IDs de especificações.
+    *   `Encerrar Contratos.md`: (Conteúdo a ser analisado e descrito)
+    *   `Script conversão de contratos.md`: (Conteúdo a ser analisado e descrito)
 
 ### **3. Contábil**
 
@@ -53,38 +53,38 @@ Automação, exportação e manipulação de contratos e compras.
 
 ### **4. Funções**
 
-Funções utilitárias reaproveitáveis em múltiplos projetos:
+Esta pasta contém um conjunto de **funções utilitárias em Groovy** projetadas para serem reutilizadas em diversos projetos e scripts. Elas oferecem soluções padronizadas para formatação e manipulação de dados comuns no contexto brasileiro, como documentos, valores monetários e números por extenso. O objetivo é centralizar e facilitar o uso dessas funcionalidades, promovendo a consistência e a eficiência no desenvolvimento.
 
-*   `formatarCpfCnpj.md`
-*   `formatarCEP.md`
-*   `formatarTelefone.md`
-*   `formatarValor.md`
-*   `numeroPorExtenso.md`
-*   `formatarUtil.md` — Funções de formatação genéricas.
+Os arquivos nesta pasta incluem:
+
+*   `formatarCEP.md`: Função que formata um CEP (Código de Endereçamento Postal) brasileiro, adicionando o hífen no formato `XXXXX-XXX`.
+*   `formatarCpfCnpj.md`: Contém três funções (`formatCNPJ`, `formatCPF` e `formatCpfCnpj`) para formatar CPFs e CNPJs brasileiros, aplicando os padrões oficiais (ex: `XXX.XXX.XXX-XX` para CPF e `XX.XXX.XXX/XXXX-XX` para CNPJ). A função `formatCpfCnpj` é inteligente e detecta automaticamente o tipo de documento.
+*   `formatarTelefone.md`: Função para formatar números de telefone brasileiros (com DDD), adaptando-se a números de 10 ou 11 dígitos e aplicando parênteses e hífen (ex: `(XX) XXXXX-XXXX`).
+*   `formatarUtil.md`: Uma função utilitária genérica que atua como um "hub" de formatação. Ela direciona a chamada para outras funções de formatação específicas (como CPF, CNPJ, CEP, TELEFONE, VALOR, EXTENSO) com base no tipo de formatação desejado, tornando o código mais limpo e fácil de manter.
+*   `formatarValor.md`: Função que formata um valor numérico para o padrão monetário brasileiro, utilizando vírgula como separador decimal e ponto como separador de milhares (ex: `1.234,56`).
+*   `numeroPorExtenso.md`: Função que converte valores numéricos (com ou sem centavos) para sua representação por extenso em português, útil para documentos como certidões e guias de pagamento.
 
 ### **5. Pessoal**
 
-Rotinas e instruções ligadas à gestão de pessoal.
-
-*   Contém um `README.md` específico com orientações.
+Esta pasta é destinada à publicação de todo o conteúdo técnico gerado pela vertical Pessoal. Seu objetivo é documentar materiais considerados facilitadores no processo de aprendizado e na melhoria da produtividade.
 
 ### **6. Tutorias Básicos**
 
-Material educativo com passo a passo para iniciantes.
+Esta pasta é destinada à publicação de conteúdos técnicos introdutórios voltados ao uso de Fontes Dinâmicas, Scripts, Fórmulas e outros recursos relacionados às extensões. É ideal para quem está começando a explorar a criação de extensões e precisa de uma base prática e acessível para seus primeiros passos.
 
-*   **Extensões**:
-    *   `Criar Fonte Dinâmica.md`
-    *   `csv.md` — Manipulação de arquivos CSV.
-    *   `estruturasCondicionais.md`
-    *   `MultiplasFontes.md`
-    *   `encontrarDuplicatas.md`
-    *   `gerarTxt.md`
+Os conteúdos estão organizados em subpastas temáticas. Para consultar os detalhes completos de cada item, é essencial acessar diretamente a respectiva pasta.
+
+*   **Extensões** — Contém tutoriais básicos sobre o desenvolvimento de scripts, fontes dinâmicas e fórmulas. Inclui:
+    *   `Criar Fonte Dinâmica.md`: Tutorial sobre como criar uma fonte dinâmica.
+    *   `csv.md`: Tutorial sobre manipulação de arquivos CSV.
+    *   `estruturasCondicionais.md`: Tutorial sobre estruturas condicionais.
+    *   `MultiplasFontes.md`: Tutorial sobre como usar múltiplas fontes.
+    *   `encontrarDuplicatas.md`: Tutorial sobre como encontrar duplicatas.
+    *   `gerarTxt.md`: Tutorial sobre como gerar arquivos TXT.
 
 ### **7. Utilidades JasperSoft**
 
-Recursos e instruções para uso com **JasperSoft**:
-
-*   Configurações, dicas e boas práticas para criação e manutenção de relatórios.
+Esta pasta está destinada a conteúdos relacionados com funções e outras ferramentas destinadas para utilidades dentro do **TIBCO JASPERSOFT STUDIO**. Ela serve como um repositório de recursos e instruções para otimizar o uso do JasperSoft, incluindo configurações, dicas e boas práticas para a criação e manutenção de relatórios.
 
 ## 🚀 Como Navegar e Utilizar
 
