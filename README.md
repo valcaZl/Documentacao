@@ -13,7 +13,7 @@ Esta pasta é dedicada à publicação de conteúdos técnicos voltados ao uso d
 Os conteúdos estão organizados em subpastas temáticas, cada uma abordando um conjunto específico de funcionalidades:
 
 *   **Casos de Uso** — Contém scripts com estrutura consolidada, pensados para serem reutilizados ou adaptados conforme a necessidade. Serve como referência prática no desenvolvimento de extensões. Inclui:
-    *   `Extração de dados em CSV.md`: Script para exportar dados de pessoas (ID, nome, CPF/CNPJ) para um arquivo CSV, com opções de configuração de delimitador e encoding. Útil para relatórios e análises externas.
+    *   [`Extração de dados em CSV.md`](https://github.com/valcaZl/Documentacao/blob/main/Arrecada%C3%A7%C3%A3o/Casos%20de%20Uso/Extra%C3%A7%C3%A3o%20de%20dados%20em%20CSV.md): Script para exportar dados de pessoas (ID, nome, CPF/CNPJ) para um arquivo CSV, com opções de configuração de delimitador e encoding. Útil para relatórios e análises externas.
     *   `Horário de funcionamento.md`: Script detalhado para coletar, formatar e exibir horários de funcionamento de estabelecimentos econômicos, tratando horários de segunda a domingo, intrajornada e variações de horário. Essencial para emissão de alvarás com informações precisas de expediente.
     *   `Leitura de arquivos TXT e preenchimento de tabela auxiliar.md`: Script para ler dados de arquivos TXT (com delimitador personalizável) e preencher tabelas auxiliares no sistema. Ideal para importação de dados externos de forma automatizada.
     *   `Script Concede Desconto Débito.md`: Script para aplicar descontos em débitos específicos, utilizando a API REST para atualização de informações financeiras.
