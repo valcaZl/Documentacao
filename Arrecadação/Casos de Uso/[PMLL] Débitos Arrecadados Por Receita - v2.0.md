@@ -218,4 +218,192 @@ Após percorrer todos os pagamentos retornados pela busca, a fonte dinâmica pop
 
 ---
 
+## 📜 Código Completo
+
+```bfc-script
+fonte = Dados.tributos.v2.pagamentos.detalhes;
+esquema = [credito: Esquema.objeto([abreviatura: Esquema.caracter, descricao: Esquema.caracter]),
+           configuracao: Esquema.objeto([ descricao: Esquema.caracter ]),
+           nroParcela: Esquema.inteiro,
+           receita: Esquema.objeto([ abreviatura: Esquema.caracter, descricao: Esquema.caracter ]),
+           valorPagoParcela: Esquema.numero,
+           valorPagoCorrecao: Esquema.numero,
+           valorPagoJuros: Esquema.numero,
+           valorPagoMulta: Esquema.numero,
+           valorDiferenca: Esquema.numero,
+           convenio: Esquema.objeto([ idConvenio: Esquema.inteiro, descConv: Esquema.caracter, agConv: Esquema.caracter, contaConv: Esquema.caracter, cedConv: Esquema.caracter ])
+          ];
+relatorio = Dados.dinamico.v2.novo(esquema);
+criterio = " pagamento.id is not null"; // PADRÃO APRESENTARÁ APENAS OS DÉBITOS
+se (parametros.dataPgtoInicial?.valor) {
+  se (criterio!='') {
+    criterio += ' and ';
+  }
+  criterio += "dataPagamentoString >= '" + Datas.formatar(parametros.dataPgtoInicial.valor, "yyyy-MM-dd") + "'";
+}
+se (parametros.dataPgtoFinal?.valor) {
+  se (criterio!='') {
+    criterio += ' and ';
+  }
+  criterio +=  "dataPagamentoString <= '" + Datas.formatar(parametros.dataPgtoFinal.valor, "yyyy-MM-dd") + "'"
+}
+se (parametros.credito?.valor) {
+  se (criterio!='') {
+    criterio += ' and ';
+  }
+  criterio +=  "idCredito in ($parametros.credito.valor)";
+}
+se (parametros.receita?.valor) {
+  se (criterio!='') {
+    criterio += ' and ';
+  }
+  criterio +=  "idReceita in ($parametros.receita.valor)";
+  
+}
+se (parametros.ano?.valor) {
+  se (criterio!='') {
+    criterio += ' and ';
+  }
+  criterio +=  "ano = " + parametros.ano.valor;
+  
+}
+se (parametros.pessoa?.valor) {
+  se (criterio!='') {
+    criterio += ' and ';
+  }
+  criterio +=  "idContribuinte in ($parametros.pessoa.valor)";
+}
+bairro = parametros.bairro.valor;
+se (bairro && bairro != '') {
+  se (criterio !='') {
+    criterio += ' and ';
+  }
+  criterio +=  "( economico.endereco.bairro.id in ($parametros.bairro.valor)" +
+    " or contribuinte.endereco.bairro.id in ($parametros.bairro.valor)" + 
+    " or imovel.endereco.bairro.id in ($parametros.bairro.valor) )";    
+}
+se (parametros.tipoBaixa?.valor) {
+  se (criterio!='') {
+    criterio += ' and ';
+  }
+  criterio +=  "tipoBaixa in ('$parametros.tipoBaixa.valor')";
+}
+logradouro = parametros.logradouro.valor;
+se (logradouro && logradouro != '') {
+  se (criterio !='') {
+    criterio += ' and ';
+  }
+  criterio +=  "( economico.endereco.logradouro.id in ($logradouro)" +
+    " or contribuinte.endereco.logradouro.id in ($logradouro)" + 
+    " or imovel.endereco.logradouro.id in ($logradouro) )";
+}
+se (parametros.nroParcela?.valor) {
+  se (criterio!='') {
+    criterio += ' and ';
+  }
+  criterio +=  "nroParcela in ($parametros.nroParcela.valor)";
+}
+se (parametros.configuracao?.valor) {
+  se (criterio!='') {
+    criterio += ' and ';
+  }
+  criterio +=  "idConfigParcelamento = " + parametros.configuracao.valor;
+}
+se (parametros.dataVencimentoInicial?.valor) {
+  se (criterio!='') {
+    criterio += ' and ';
+  }
+  criterio += "dtVencimento >= '" + Datas.formatar(parametros.dataVencimentoInicial.valor, "yyyy-MM-dd") + "'";
+}
+se (parametros.dataVencimentoFinal?.valor) {
+  se (criterio!='') {
+    criterio += ' and ';
+  }
+  criterio +=  "dtVencimento <= '" + Datas.formatar(parametros.dataVencimentoFinal.valor, "yyyy-MM-dd") + "'"
+}
+se (parametros.dataCreditoInicial?.valor) {
+  se (criterio!='') {
+    criterio += ' and ';
+  }
+  criterio += "dataCreditoString >= '" + Datas.formatar(parametros.dataCreditoInicial.valor, "yyyy-MM-dd") + "'";
+}
+se (parametros.dataCreditoFinal?.valor) {
+  se (criterio!='') {
+    criterio += ' and ';
+  }
+  criterio +=  "dataCreditoString <= '" + Datas.formatar(parametros.dataCreditoFinal.valor, "yyyy-MM-dd") + "'"
+}
+se (parametros.convenio?.valor) {
+  se (criterio!='') {
+    criterio += ' and ';
+  }
+  //criterio +=  "pagamento.idConvenio in ($parametros.convenio.valor)";
+  criterio +=  "pagamento.idConvenio = "  + parametros.convenio.valor;
+  
+}
+imprimir "criterio="+criterio;
+pagamentos = fonte.busca(criterio: criterio);
+percorrer (pagamentos) { pgto ->
+  codRef     = pgto.debito.referente.codigo
+  descRec    = pgto.receita?.descricao?:""
+  abrevRec   = pgto.receita?.abreviatura?:""
+  tipoRec    = pgto.tipoReceitaPagamento?.valor?:""
+  idConvenio = pgto.pagamento.idConvenio?:0
+  descConv   = ""
+  agConv     = ""
+  contaConv  = ""
+  cedConv    = ""
+  
+  
+  se (tipoRec == "JURO_FINANCIAMENTO" && descRec == ""){
+    descRec  = "Juro de financiamento"
+    abrevRec = "JurFin"
+  }
+  
+  se (idConvenio > 0){
+    fonteConvenios = Dados.tributos.v2.convenios;
+    filtroConvenios = "id = $idConvenio"
+    dadosConvenios = fonteConvenios.busca(criterio: filtroConvenios)
+    
+    percorrer (dadosConvenios) { itemConvenios ->
+      descConv = itemConvenios.descricao
+      agConv   = "${itemConvenios.agenciaBancaria?.nroAgencia?:""}-${itemConvenios.agenciaBancaria?.digAgencia?:""}"
+      contaConv     = "${itemConvenios.contaBancaria?:""}-${itemConvenios.dvContaBancaria?:""}"
+      cedConv   = "${itemConvenios.cedente?:""}"
+    }
+  }
+  
+  
+  linha = [
+    
+    credito: [descricao: pgto.debito?.descricaoCredito,
+              abreviatura: pgto.debito?.abreviaturaCredito],
+    nroParcela: pgto.debito?.nroParcela,
+    configuracao: [descricao: pgto.debito?.descricaoParcelamento],
+    receita: [descricao: descRec,
+              abreviatura: abrevRec],
+    valorPagoParcela: pgto.valorPagoLancado + pgto.valorPagoMultaParcelada + pgto.valorPagoJurosParcelado + pgto.valorPagoCorrecaoParcelada,
+    valorPagoCorrecao: pgto.valorPagoCorrecao,
+    valorPagoJuros: pgto.valorPagoJuros,
+    valorPagoMulta: pgto.valorPagoMulta,
+    valorDiferenca: pgto.valorDiferencaCorrecao + pgto.valorDiferencaJuros + pgto.valorDiferencaMulta + pgto.valorDiferencaTributo,
+    codRef: codRef,
+    convenio: [idConvenio: idConvenio,
+               descConv: descConv,
+               agConv: agConv,
+               contaConv: contaConv,
+               cedConv: cedConv]
+    //convenio: parametros.convenio.valor
+  ];
+  
+  imprimir JSON.escrever(linha)
+  
+  relatorio.inserirLinha(linha);	
+  
+}
+retornar relatorio;
+```
+
+---
+
 > 📄 Documentação gerada a partir do script de Relatório de Pagamentos (Detalhes), seguindo o padrão de documentação `valcaZl/Documentacao`.
