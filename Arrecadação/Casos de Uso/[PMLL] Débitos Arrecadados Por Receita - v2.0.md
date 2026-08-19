@@ -1,133 +1,221 @@
-# Documentação do Script — Relatório de Pagamentos de Tributos (Detalhes)
+# 💰 Documentação do Script de Relatório de Pagamentos (Detalhes)
 
-## Visão Geral
+Este script em **BFC-Script/Groovy** consulta a fonte `Dados.tributos.v2.pagamentos.detalhes`, aplicando uma série de **filtros opcionais** informados por parâmetro (período de pagamento, crédito, receita, ano, contribuinte, bairro, logradouro, tipo de baixa, parcela, configuração de parcelamento, período de vencimento, período de crédito e convênio). Para cada pagamento encontrado, o script trata valores de receita, identifica dados do convênio de cobrança (quando existir) e consolida tudo em uma fonte dinâmica (`relatorio`) usada na geração do relatório de pagamentos.
 
-Este script é uma **fonte dinâmica** (BFC-Script) que consulta os pagamentos de tributos registrados no sistema (`Dados.tributos.v2.pagamentos.detalhes`), aplica um conjunto de filtros opcionais informados pelo usuário via `parametros`, e monta um relatório consolidado com os valores pagos por parcela (principal, correção, juros, multa e eventuais diferenças), além de dados do crédito, da receita, da configuração de parcelamento e — quando aplicável — do convênio bancário utilizado no pagamento.
+---
 
-O resultado é retornado como uma fonte dinâmica (`relatorio`) pronta para ser exibida em um relatório do sistema.
+## ✨ Fontes de Dados Utilizadas
 
-## Fonte de Dados
+| Fonte | Finalidade |
+| --- | --- |
+| `Dados.tributos.v2.pagamentos.detalhes` | Fonte principal: detalhes dos pagamentos realizados |
+| `Dados.tributos.v2.convenios` | Dados do convênio de cobrança vinculado ao pagamento (agência, conta, cedente) |
 
-| Fonte | Descrição |
-| :--- | :--- |
-| `Dados.tributos.v2.pagamentos.detalhes` | Fonte principal, com o detalhamento dos pagamentos de tributos. |
-| `Dados.tributos.v2.convenios` | Consultada linha a linha, apenas quando o pagamento possui `idConvenio > 0`, para obter os dados bancários do convênio. |
+---
 
-## Estrutura do Relatório (`esquema`)
+## 📋 Estrutura de Dados do Relatório (`esquema`)
 
 | Campo | Tipo | Descrição |
-| :--- | :--- | :--- |
-| `credito.abreviatura` | Caracter | Abreviatura do crédito tributário do débito. |
-| `credito.descricao` | Caracter | Descrição do crédito tributário do débito. |
-| `configuracao.descricao` | Caracter | Descrição da configuração de parcelamento vinculada ao débito. |
-| `nroParcela` | Inteiro | Número da parcela paga. |
-| `receita.abreviatura` | Caracter | Abreviatura da receita (ou `"JurFin"` quando aplicada a regra especial de juros de financiamento). |
-| `receita.descricao` | Caracter | Descrição da receita (ou `"Juro de financiamento"` quando aplicada a regra especial). |
-| `valorPagoParcela` | Número | Soma do valor lançado + multa parcelada + juros parcelado + correção parcelada pagos. |
-| `valorPagoCorrecao` | Número | Valor pago referente à correção monetária. |
-| `valorPagoJuros` | Número | Valor pago referente a juros. |
-| `valorPagoMulta` | Número | Valor pago referente a multa. |
-| `valorDiferenca` | Número | Soma das diferenças de correção, juros, multa e tributo. |
-| `convenio.idConvenio` | Inteiro | Identificador do convênio bancário usado no pagamento (0 quando não há). |
-| `convenio.descConv` | Caracter | Descrição do convênio. |
-| `convenio.agConv` | Caracter | Agência bancária do convênio, no formato `nroAgencia-digAgencia`. |
-| `convenio.contaConv` | Caracter | Conta bancária do convênio, no formato `contaBancaria-dvContaBancaria`. |
-| `convenio.cedConv` | Caracter | Cedente do convênio. |
+| --- | --- | --- |
+| `credito` | Objeto | Dados do crédito do débito pago (ver subestrutura) |
+| `configuracao` | Objeto | Descrição da configuração de parcelamento |
+| `nroParcela` | Inteiro | Número da parcela paga |
+| `receita` | Objeto | Dados da receita do pagamento (ver subestrutura) |
+| `valorPagoParcela` | Número | Valor total pago na parcela (lançado + multa + juros + correção) |
+| `valorPagoCorrecao` | Número | Valor pago referente à correção |
+| `valorPagoJuros` | Número | Valor pago referente a juros |
+| `valorPagoMulta` | Número | Valor pago referente à multa |
+| `valorDiferenca` | Número | Soma das diferenças de correção, juros, multa e tributo |
+| `convenio` | Objeto | Dados do convênio de cobrança (ver subestrutura) |
 
-> **Atenção:** a linha (`linha`) montada durante o processamento também inclui o campo `codRef` (código de referência do débito), mas esse campo **não está declarado em `esquema`**. Isso é uma inconsistência do script — o campo deve ser adicionado ao esquema (ex.: `codRef: Esquema.caracter`) para que o valor efetivamente apareça no relatório, caso contrário poderá ser descartado ou gerar erro na inserção da linha.
+> ⚠️ O campo `codRef`, atribuído na `linha` (ver Bloco 3), **não está declarado no `esquema`** — ver seção Observações.
 
-## Parâmetros de Entrada
+### Subestrutura `credito`
+| Campo | Tipo | Descrição |
+| --- | --- | --- |
+| `abreviatura` | Caracter | Abreviatura do crédito |
+| `descricao` | Caracter | Descrição do crédito |
 
-Todos os parâmetros são opcionais; quando não informados, o filtro correspondente simplesmente não é adicionado ao critério de busca.
+### Subestrutura `configuracao`
+| Campo | Tipo | Descrição |
+| --- | --- | --- |
+| `descricao` | Caracter | Descrição da configuração de parcelamento |
 
-| Parâmetro | Descrição | Campo filtrado |
-| :--- | :--- | :--- |
-| `dataPgtoInicial` | Data inicial de pagamento | `dataPagamentoString >=` |
-| `dataPgtoFinal` | Data final de pagamento | `dataPagamentoString <=` |
-| `credito` | Crédito(s) tributário(s) | `idCredito in (...)` |
-| `receita` | Receita(s) | `idReceita in (...)` |
-| `ano` | Ano de referência | `ano =` |
-| `pessoa` | Contribuinte(s) | `idContribuinte in (...)` |
-| `bairro` | Bairro(s) | `economico.endereco.bairro.id`, `contribuinte.endereco.bairro.id` ou `imovel.endereco.bairro.id in (...)` |
-| `tipoBaixa` | Tipo de baixa do pagamento | `tipoBaixa in ('...')` |
-| `logradouro` | Logradouro(s) | `economico.endereco.logradouro.id`, `contribuinte.endereco.logradouro.id` ou `imovel.endereco.logradouro.id in (...)` |
-| `nroParcela` | Número(s) de parcela | `nroParcela in (...)` |
-| `configuracao` | Configuração de parcelamento | `idConfigParcelamento =` |
-| `dataVencimentoInicial` | Data inicial de vencimento | `dtVencimento >=` |
-| `dataVencimentoFinal` | Data final de vencimento | `dtVencimento <=` |
-| `dataCreditoInicial` | Data inicial de crédito | `dataCreditoString >=` |
-| `dataCreditoFinal` | Data final de crédito | `dataCreditoString <=` |
-| `convenio` | Convênio bancário | `pagamento.idConvenio =` |
+### Subestrutura `receita`
+| Campo | Tipo | Descrição |
+| --- | --- | --- |
+| `abreviatura` | Caracter | Abreviatura da receita |
+| `descricao` | Caracter | Descrição da receita |
 
-Todas as datas são formatadas para `yyyy-MM-dd` através de `Datas.formatar(...)` antes de compor o critério.
+### Subestrutura `convenio`
+| Campo | Tipo | Descrição |
+| --- | --- | --- |
+| `idConvenio` | Inteiro | Identificador do convênio |
+| `descConv` | Caracter | Descrição do convênio |
+| `agConv` | Caracter | Agência bancária, no formato `nroAgencia-digAgencia` |
+| `contaConv` | Caracter | Conta bancária, no formato `contaBancaria-dvContaBancaria` |
+| `cedConv` | Caracter | Cedente do convênio |
 
-## Critério de Busca (`criterio`)
+---
 
-O critério parte de um valor fixo:
+## 🔎 Parâmetros de Entrada (todos opcionais)
 
+| Parâmetro | Cláusula aplicada no `criterio` |
+| --- | --- |
+| `dataPgtoInicial` | `dataPagamentoString >= 'yyyy-MM-dd'` |
+| `dataPgtoFinal` | `dataPagamentoString <= 'yyyy-MM-dd'` |
+| `credito` | `idCredito in (...)` |
+| `receita` | `idReceita in (...)` |
+| `ano` | `ano = <valor>` |
+| `pessoa` | `idContribuinte in (...)` |
+| `bairro` | `economico.endereco.bairro.id in (...) or contribuinte.endereco.bairro.id in (...) or imovel.endereco.bairro.id in (...)` |
+| `tipoBaixa` | `tipoBaixa in ('<valor>')` |
+| `logradouro` | `economico.endereco.logradouro.id in (...) or contribuinte.endereco.logradouro.id in (...) or imovel.endereco.logradouro.id in (...)` |
+| `nroParcela` | `nroParcela in (...)` |
+| `configuracao` | `idConfigParcelamento = <valor>` |
+| `dataVencimentoInicial` | `dtVencimento >= 'yyyy-MM-dd'` |
+| `dataVencimentoFinal` | `dtVencimento <= 'yyyy-MM-dd'` |
+| `dataCreditoInicial` | `dataCreditoString >= 'yyyy-MM-dd'` |
+| `dataCreditoFinal` | `dataCreditoString <= 'yyyy-MM-dd'` |
+| `convenio` | `pagamento.idConvenio = <valor>` |
+
+Todos os filtros são combinados com `and`. O critério inicial (`" pagamento.id is not null"`) é sempre aplicado — o comentário no código indica que, por padrão, o relatório apresentará apenas os débitos.
+
+---
+
+## 🧭 Explicação Geral do Código
+
+O script começa criando a fonte dinâmica `relatorio` a partir do `esquema`. Em seguida, monta dinamicamente a string `criterio`, adicionando uma cláusula `and` para cada parâmetro informado pelo usuário (datas de pagamento, crédito, receita, ano, contribuinte, bairro, tipo de baixa, logradouro, parcela, configuração, datas de vencimento, datas de crédito e convênio). Com o critério final montado, busca os pagamentos na fonte `Dados.tributos.v2.pagamentos.detalhes`. Para cada pagamento, trata a descrição da receita (com um caso especial para juros de financiamento), busca os dados do convênio de cobrança quando houver `idConvenio`, monta a `linha` somando os valores pagos e as diferenças, imprime o resultado em JSON e insere a linha na fonte dinâmica. Por fim, retorna o `relatorio`.
+
+---
+
+## 🧩 Blocos de Código
+
+### 1. Esquema e Inicialização da Fonte
+
+```groovy
+fonte = Dados.tributos.v2.pagamentos.detalhes;
+esquema = [ /* ...campos descritos na seção Esquema... */ ];
+relatorio = Dados.dinamico.v2.novo(esquema);
 ```
-pagamento.id is not null
-```
 
-> O comentário no código (`// PADRÃO APRESENTARÁ APENAS OS DÉBITOS`) indica que a intenção original era que, por padrão, o relatório trouxesse apenas os débitos; porém a condição efetivamente usada (`pagamento.id is not null`) filtra registros que **possuem pagamento**, o que é o oposto do comentário. Vale confirmar com quem mantém o script se a condição está correta ou se o comentário está desatualizado.
+Define a fonte de origem dos pagamentos e cria a fonte dinâmica de saída (`relatorio`) com base no `esquema`.
 
-A cada parâmetro informado, uma cláusula `and` é concatenada ao critério, seguindo o padrão:
+---
+
+### 2. Montagem Dinâmica do Critério de Busca
 
 ```bfc-script
-se (parametros.<param>?.valor) {
-  se (criterio!='') { criterio += ' and '; }
-  criterio += "<condição>";
+criterio = " pagamento.id is not null"; // PADRÃO APRESENTARÁ APENAS OS DÉBITOS
+
+se (parametros.dataPgtoInicial?.valor) {
+  se (criterio!='') {
+    criterio += ' and ';
+  }
+  criterio += "dataPagamentoString >= '" + Datas.formatar(parametros.dataPgtoInicial.valor, "yyyy-MM-dd") + "'";
+}
+
+// ... mesmo padrão repetido para dataPgtoFinal, credito, receita, ano, pessoa,
+// bairro, tipoBaixa, logradouro, nroParcela, configuracao,
+// dataVencimentoInicial/Final, dataCreditoInicial/Final e convenio
+
+imprimir "criterio="+criterio;
+pagamentos = fonte.busca(criterio: criterio);
+```
+
+Cada parâmetro é testado individualmente (`se (parametros.X?.valor)`); quando informado, uma nova cláusula é concatenada ao `criterio` com o conector `and`. Os filtros de `bairro` e `logradouro` são os únicos que combinam múltiplas colunas com `or`, pois o bairro/logradouro pode estar vinculado ao econômico, ao contribuinte ou ao imóvel. Ao final, o `criterio` é impresso no console (útil para depuração) e utilizado na busca dos pagamentos.
+
+---
+
+### 3. Tratamento dos Dados de Receita e Convênio
+
+```bfc-script
+percorrer (pagamentos) { pgto ->
+  codRef     = pgto.debito.referente.codigo
+  descRec    = pgto.receita?.descricao?:""
+  abrevRec   = pgto.receita?.abreviatura?:""
+  tipoRec    = pgto.tipoReceitaPagamento?.valor?:""
+  idConvenio = pgto.pagamento.idConvenio?:0
+  descConv   = ""
+  agConv     = ""
+  contaConv  = ""
+  cedConv    = ""
+
+  se (tipoRec == "JURO_FINANCIAMENTO" && descRec == ""){
+    descRec  = "Juro de financiamento"
+    abrevRec = "JurFin"
+  }
+
+  se (idConvenio > 0){
+    fonteConvenios = Dados.tributos.v2.convenios;
+    filtroConvenios = "id = $idConvenio"
+    dadosConvenios = fonteConvenios.busca(criterio: filtroConvenios)
+
+    percorrer (dadosConvenios) { itemConvenios ->
+      descConv = itemConvenios.descricao
+      agConv   = "${itemConvenios.agenciaBancaria?.nroAgencia?:""}-${itemConvenios.agenciaBancaria?.digAgencia?:""}"
+      contaConv = "${itemConvenios.contaBancaria?:""}-${itemConvenios.dvContaBancaria?:""}"
+      cedConv   = "${itemConvenios.cedente?:""}"
+    }
+  }
+  // ...
 }
 ```
 
-Duas exceções a esse padrão: `bairro` e `logradouro` são lidos diretamente com `.valor` (sem o operador seguro `?.`), o que pode gerar erro caso `parametros.bairro` ou `parametros.logradouro` não existam na definição do relatório.
+Para cada pagamento, o script extrai o código de referência do débito (`codRef`) e os dados da receita, aplicando um fallback especial: quando o tipo de receita é `JURO_FINANCIAMENTO` e a descrição vier vazia, força a descrição para `"Juro de financiamento"` e a abreviatura para `"JurFin"`. Se o pagamento estiver vinculado a um convênio (`idConvenio > 0`), busca o convênio em `Dados.tributos.v2.convenios` e monta a agência (`nroAgencia-digAgencia`), a conta (`contaBancaria-dvContaBancaria`) e o cedente.
 
-O critério final é impresso no console para depuração:
+---
+
+### 4. Montagem da Linha e Inserção na Fonte
 
 ```bfc-script
-imprimir "criterio="+criterio;
+linha = [
+  credito: [descricao: pgto.debito?.descricaoCredito,
+            abreviatura: pgto.debito?.abreviaturaCredito],
+  nroParcela: pgto.debito?.nroParcela,
+  configuracao: [descricao: pgto.debito?.descricaoParcelamento],
+  receita: [descricao: descRec,
+            abreviatura: abrevRec],
+  valorPagoParcela: pgto.valorPagoLancado + pgto.valorPagoMultaParcelada + pgto.valorPagoJurosParcelado + pgto.valorPagoCorrecaoParcelada,
+  valorPagoCorrecao: pgto.valorPagoCorrecao,
+  valorPagoJuros: pgto.valorPagoJuros,
+  valorPagoMulta: pgto.valorPagoMulta,
+  valorDiferenca: pgto.valorDiferencaCorrecao + pgto.valorDiferencaJuros + pgto.valorDiferencaMulta + pgto.valorDiferencaTributo,
+  codRef: codRef,
+  convenio: [idConvenio: idConvenio,
+             descConv: descConv,
+             agConv: agConv,
+             contaConv: contaConv,
+             cedConv: cedConv]
+];
+
+imprimir JSON.escrever(linha)
+
+relatorio.inserirLinha(linha);
 ```
 
-## Processamento dos Registros
+Monta o objeto `linha` com os dados do crédito, parcela, configuração, receita (já tratada no bloco anterior), os valores pagos (`valorPagoParcela` como soma de lançado + multa + juros + correção parceladas), a diferença total (`valorDiferenca`) e os dados do convênio. A linha é impressa em formato JSON para depuração e então inserida na fonte dinâmica `relatorio`.
 
-Após a busca (`fonte.busca(criterio: criterio)`), o script percorre cada pagamento (`pgto`) e executa os seguintes passos:
+---
 
-1. **Extração de valores com tratamento de nulos** (`?.` e `?:`):
-   - `codRef` — código de referência do débito (`pgto.debito.referente.codigo`).
-   - `descRec` / `abrevRec` — descrição/abreviatura da receita, com fallback para string vazia.
-   - `tipoRec` — tipo de receita do pagamento.
-   - `idConvenio` — identificador do convênio, com fallback para `0`.
-
-2. **Regra especial de juros de financiamento:** se `tipoRec == "JURO_FINANCIAMENTO"` e a receita não tem descrição (`descRec == ""`), o script força:
-   - `descRec = "Juro de financiamento"`
-   - `abrevRec = "JurFin"`
-
-3. **Busca dos dados do convênio:** se `idConvenio > 0`, o script consulta `Dados.tributos.v2.convenios` filtrando por `id = idConvenio` e, para o registro encontrado, extrai:
-   - `descConv` — descrição do convênio;
-   - `agConv` — agência no formato `nroAgencia-digAgencia`;
-   - `contaConv` — conta no formato `contaBancaria-dvContaBancaria`;
-   - `cedConv` — cedente.
-
-4. **Montagem da linha (`linha`)** com os campos do crédito, configuração de parcelamento, receita (já tratada pela regra especial), valores pagos (parcela, correção, juros, multa), diferença total e dados do convênio.
-
-   - `valorPagoParcela` é calculado somando `valorPagoLancado + valorPagoMultaParcelada + valorPagoJurosParcelado + valorPagoCorrecaoParcelada`.
-   - `valorDiferenca` é calculado somando `valorDiferencaCorrecao + valorDiferencaJuros + valorDiferencaMulta + valorDiferencaTributo`.
-
-5. **Depuração:** cada linha montada é impressa em formato JSON (`imprimir JSON.escrever(linha)`) antes de ser inserida no relatório.
-
-6. **Inserção:** a linha é adicionada à fonte dinâmica `relatorio.inserirLinha(linha)`.
-
-Ao final do laço, o script retorna a fonte dinâmica populada:
+### 5. Retorno do Relatório
 
 ```bfc-script
 retornar relatorio;
 ```
 
-## Pontos de Atenção
+Após percorrer todos os pagamentos retornados pela busca, a fonte dinâmica populada é retornada para geração do relatório.
 
-- **Campo `codRef` fora do esquema:** conforme citado acima, `codRef` é preenchido na linha mas não existe em `esquema`; recomenda-se adicionar `codRef: Esquema.caracter` ao esquema (ou remover o campo da linha, se não for necessário).
-- **Comentário do critério base divergente:** o comentário `PADRÃO APRESENTARÁ APENAS OS DÉBITOS` não corresponde à condição `pagamento.id is not null`, que na prática filtra pagamentos existentes, não débitos em aberto.
-- **`convenio` aceita apenas um valor:** diferente dos demais filtros de lista (`credito`, `receita`, `pessoa`, `nroParcela`), o filtro de convênio usa igualdade simples (`pagamento.idConvenio = valor`) em vez de `in (...)`. Há inclusive uma linha comentada (`//criterio += "pagamento.idConvenio in ($parametros.convenio.valor)"`) sugerindo que o suporte a múltiplos convênios foi cogitado, mas não implementado.
-- **`bairro` e `logradouro` sem operador seguro:** ao contrário dos demais filtros, esses dois leem `parametros.bairro.valor` e `parametros.logradouro.valor` diretamente, sem `?.`, podendo causar erro se o parâmetro não estiver definido no relatório.
-- **Impressões de depuração em produção:** os comandos `imprimir "criterio="+criterio` e `imprimir JSON.escrever(linha)` (este último dentro do laço, executado para cada registro) são úteis para depuração, mas podem poluir o log e impactar performance em relatórios com grande volume de pagamentos; recomenda-se removê-los ou condicioná-los a um modo de depuração antes de uso em produção.
-- **Concatenação direta de valores no critério:** os valores de parâmetros são inseridos diretamente na string do critério (ex.: `"ano = " + parametros.ano.valor`, `"idCredito in ($parametros.credito.valor)"`). Isso segue o padrão comum de outras fontes dinâmicas do sistema, mas depende de que os parâmetros sejam sempre validados/tipados pela definição do relatório, já que não há tratamento explícito contra valores inesperados.
+---
+
+## ⚠️ Observações
+
+- **Campo `codRef` fora do `esquema`:** a `linha` atribui o campo `codRef: codRef`, mas o `esquema` declarado no início do script **não possui** esse campo. Dependendo da implementação de `Dados.dinamico.v2`, isso pode gerar um campo ignorado silenciosamente ou um erro em tempo de execução — vale confirmar se o `esquema` deveria incluir `codRef: Esquema.caracter` (ou tipo equivalente).
+- **Comentário do critério base:** o comentário `// PADRÃO APRESENTARÁ APENAS OS DÉBITOS` acompanha o critério `pagamento.id is not null`, mas semanticamente esse filtro garante que **apenas pagamentos já efetivados** (com `pagamento` vinculado) sejam retornados; vale revisar se o comentário reflete a intenção original.
+- **Filtro de convênio comentado:** existe uma linha comentada (`//criterio += "pagamento.idConvenio in ($parametros.convenio.valor)";`) substituída por uma comparação de igualdade (`pagamento.idConvenio = $parametros.convenio.valor`) — ou seja, atualmente o filtro de convênio **não suporta múltiplos convênios selecionados**, apenas um único valor.
+- **Filtros combinados com `or` entre entidades:** os filtros de `bairro` e `logradouro` verificam três origens possíveis (econômico, contribuinte e imóvel), cobrindo diferentes tipos de cadastro vinculados ao pagamento.
+- **Concatenação de string em `criterio`:** os valores de parâmetros são interpolados diretamente na string do critério (ex.: `"idCredito in ($parametros.credito.valor)"`), sem escaping adicional — o comportamento depende de os parâmetros virem sempre como listas/valores numéricos seguros.
+
+---
+
+> 📄 Documentação gerada a partir do script de Relatório de Pagamentos (Detalhes), seguindo o padrão de documentação `valcaZl/Documentacao`.
