@@ -1,4 +1,4 @@
-# Extrato de Pendências do Contribuinte (Débitos, Dívidas e Parcelamentos)
+# Extrato Imóveis e Econômicos
 
 Este documento descreve o script desenvolvido para a plataforma **Betha Sistemas** que monta a fonte dinâmica do extrato de pendências do contribuinte, reunindo em uma única lista de lançamentos os **débitos**, as **dívidas ativas** e as **parcelas de parcelamento**, com juros, multa e correção calculados na data de hoje e com os pagamentos já realizados abatidos.
 
@@ -872,5 +872,5 @@ retornar fonte;
 
 | Item | Chave |
 |---|---|
-| Relatório | `d6352147-cbf8-4002-b801-9f0a575d8ddb` |
-| Fonte | `b6d6c46c-23b1-4a9f-8abc-35b12b043f91` |
+| Relatório | `b5a65dc8-cd8f-468f-8f4c-e09426f67399` |
+| Fonte | `ac567402-0938-4082-854f-46097e5f78b7` |
